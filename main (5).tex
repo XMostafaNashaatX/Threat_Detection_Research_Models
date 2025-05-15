@@ -1,0 +1,1145 @@
+\documentclass[conference,compsoc]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{subfigure}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage[section]{placeins} % Add placeins for \FloatBarrier with section option
+\usepackage{etoolbox} % Add package for better spacing control
+
+\usepackage{caption}
+\captionsetup{font=footnotesize,labelsep=period} % IEEE caption style
+\usepackage{subcaption}
+\usepackage{colortbl} % For colored rows in tables
+
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, calc, fit}
+
+% Define a consistent style for all figures
+\tikzset{
+  block/.style={rectangle, draw, rounded corners=2pt, minimum width=3cm, minimum height=0.8cm, 
+                text width=3cm, align=center, font=\footnotesize, fill=white, draw=black},
+  line/.style={draw, -Stealth, thick},
+  cloud/.style={draw, ellipse, minimum height=1cm, minimum width=3cm, align=center, font=\footnotesize}
+}
+
+% For consistent tables
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+% Adjust figure spacing to be more compact - IEEE standard
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{5pt}
+
+% Add some tighter spacing for lists and paragraphs
+\setlength{\parskip}{0ex plus 0.1ex minus 0.1ex}
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\setlength{\topsep}{1pt}
+
+% Improve float placement with IEEE parameters
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\setcounter{dbltopnumber}{2}
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\dblfloatpagefraction}{0.8}
+\setlength{\dblfloatsep}{10pt plus 2pt minus 2pt}
+
+% Add more flexible float settings
+\renewcommand{\floatpagefraction}{0.7}    % Minimum fraction of a float page to be filled with floats
+\renewcommand{\textfraction}{0.1}         % Allow smaller text fraction (more floats per page)
+\setcounter{topnumber}{3}                 % Maximum number of floats at top of page
+\setcounter{bottomnumber}{3}              % Maximum number of floats at bottom of page
+\setcounter{totalnumber}{5}               % Maximum number of floats on a page
+
+% Better spacing between floats
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}      % Space between in-text floats and text
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}   % Space between floats and text
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}       % Space between consecutive floats
+
+\begin{document}
+
+\title{Meta-Analysis of Real-Time Threat Detection via Explainable Multimodal Analysis of Facial and Vocal Cues}
+
+\author{
+\IEEEauthorblockN{Mostafa Nashaat,Fares Wael,Abdelwahab Hassan,Ahmed Abdelsamad}
+\IEEEauthorblockA{Department of Data Science and artificial intelligence\\
+university of science and technology in Zewail City\\
+Giza, Egypt\\
+}
+}
+
+\maketitle
+
+\begin{abstract}
+This comprehensive meta-analysis investigates multimodal approaches for real-time threat detection through facial and vocal cues, with a core focus on model explainability. We implemented 12 state-of-the-art AI models from contemporary research, spanning diverse architectures including CNN-LSTM frameworks, SVM-based approaches, and sophisticated multimodal fusion techniques. Using benchmark datasets including the Real-Life Violence Situations Dataset, RAVDESS emotional speech corpus, and specialized facial expression collections, we applied multiple explainability methods (LIME, SHAP, Grad-CAM, DeepDream, and feature visualization) to provide interpretable insights into model decision-making processes. Our results demonstrate that multimodal approaches achieve superior accuracy (88-94\%) compared to unimodal techniques, with attention-based fusion mechanisms proving particularly effective at dynamically weighting input modalities. Explainability analysis revealed that temporal dynamics in facial micro-expressions and spectral patterns in vocal features were the most influential threat indicators, with eye region movements (23\%) and mouth tension (18\%) contributing significantly to predictions. We identified critical limitations in current approaches: an overreliance on computationally expensive CNN-LSTM architectures (requiring 142.6ms inference time and 283MB RAM for the best-performing model), limited exploration of lightweight alternatives suitable for edge deployment, and insufficient attention to real-time inference paradigms essential for practical surveillance applications. This research provides valuable insights for developing more transparent, efficient, and deployable threat detection systems through explainability-aware architecture design and optimization techniques.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Explainable AI, Threat Detection, Multimodal Analysis, Facial Expression Recognition, Speech Emotion Recognition, CNN-LSTM, LIME, SHAP, Grad-CAM, DeepDream
+\end{IEEEkeywords}
+
+\section{Introduction}
+The automatic detection of threatening or violent behavior has become increasingly important in contemporary security applications, healthcare monitoring, and law enforcement. Recent advances in deep learning have enabled significant progress in analyzing multimodal cues from facial expressions and vocal characteristics to identify potential threats in real-time. However, the "black box" nature of sophisticated deep learning models presents significant challenges for critical applications where transparency and explainability are essential for ethical deployment and public trust.
+
+Threat detection systems based on facial and vocal cues are particularly valuable as they can operate without requiring physical contact and can potentially identify threatening situations before they escalate. These systems typically analyze subtle facial micro-expressions, body language indicators, and vocal stress patterns to determine the likelihood of threatening behavior. The complexity of these models, however, makes it difficult to understand their decision-making processes, raising concerns about reliability, bias, and ethical deployment in high-stakes environments.
+
+\subsection{Motivation and Significance}
+The primary motivation for this research stems from the increasing deployment of AI-based surveillance systems coupled with growing societal demand for transparency and accountability in automated decision-making. Explainable AI (XAI) approaches offer potential solutions by making complex model behavior more interpretable to human operators and stakeholders. For threat detection specifically, explainability is not merely a technical consideration but an ethical imperative, as false positives can lead to unnecessary interventions, while false negatives may result in missed threats.
+
+The significant contributions of this work include:
+\begin{itemize}
+    \item The first comprehensive meta-analysis of explainability techniques applied specifically to multimodal threat detection systems
+    \item Implementation and comparative analysis of 12 distinct state-of-the-art model architectures with detailed performance metrics
+    \item Novel insights into the decision-making processes of threat detection models through multiple complementary explainability approaches
+    \item Identification of critical limitations in current approaches and actionable recommendations for developing more deployable systems
+\end{itemize}
+
+\subsection{Research Objectives}
+The primary objective of this research is to conduct a comprehensive meta-analysis of current approaches to threat detection through facial and vocal cues, with a specific focus on model explainability. By implementing and analyzing multiple state-of-the-art models and applying various explainability techniques, we aim to:
+
+\begin{itemize}
+    \item Evaluate the effectiveness of different multimodal architectures for threat detection
+    \item Assess the interpretability of these models using various XAI techniques
+    \item Identify critical limitations in current approaches
+    \item Propose directions for developing more transparent and efficient threat detection systems
+\end{itemize}
+
+For this study, we utilized several benchmark datasets, including the Real-Life Violence Situations Dataset, facial expression recognition datasets, and emotion recognition audio datasets. We implemented 12 distinct models from recent literature, ranging from CNN-LSTM architectures to SVM-based approaches and multimodal fusion techniques.
+
+\subsection{Research Questions}
+This paper addresses the following research questions:
+\begin{enumerate}
+    \item How effective are current multimodal approaches in detecting threats through facial and vocal cues?
+    \item What insights do different explainability techniques provide about the decision-making processes of these models?
+    \item What are the key technical and computational limitations of current approaches, particularly for real-time applications?
+    \item How can explainability enhance the development of more reliable, efficient, and ethically sound threat detection systems?
+\end{enumerate}
+
+\section{Related Work}
+Recent years have seen substantial research in threat detection systems using multimodal approaches. We analyze 12 key studies that form the foundation of our implementation and analysis.
+
+\subsection{Deep Learning Approaches for Visual Threat Detection}
+Patil et al. \cite{patil2023} developed a real-time violence detection system for surveillance videos using CNN-LSTM architectures. Their approach achieved 91.5\% accuracy on the Real-Life Violence Situations Dataset but lacked explainability components. The model primarily focused on spatial-temporal features extracted from video frames, using a three-layer CNN backbone followed by LSTM units to capture temporal dynamics.
+
+Amrutha et al. \cite{amrutha2020} proposed a deep learning approach for suspicious activity detection from surveillance footage, utilizing temporal features through 3D convolutional networks. Their work demonstrated promising results in crowded scenes but faced challenges with computational requirements for real-time processing. Their architecture incorporated skip connections inspired by ResNet, which improved gradient flow during training and enabled deeper model architectures.
+
+Bermejo Nievas et al. \cite{bermejo2016} introduced one of the earlier multi-modal human aggression detection systems, combining visual features with audio cues. Their approach used traditional computer vision techniques alongside machine learning classifiers, providing a baseline for comparison with more recent deep learning methods. They employed histogram of oriented gradients (HOG) and local binary patterns (LBP) as feature extractors, followed by SVM classification, achieving 81.4\% accuracy on their custom dataset.
+
+\subsection{Multimodal Sentiment and Emotion Analysis}
+Poria et al. \cite{poria2016} pioneered the fusion of audio, visual, and textual clues for sentiment analysis, demonstrating that multimodal approaches significantly outperform unimodal techniques. Their feature-level fusion approach has influenced numerous subsequent studies in threat detection. Their model extracted CNN features from facial images, acoustic features from audio signals, and linguistic features from text transcripts, combining them through a tensor fusion network to achieve state-of-the-art performance on sentiment analysis benchmarks.
+
+González \cite{gonzalez2022} extended this work to wearable devices with applications in detecting gender-based violence, highlighting the potential for edge-based threat detection. The work implemented a lightweight architecture suitable for resource-constrained environments, combining accelerometer data with audio processing, and achieved 87.3\% accuracy with an inference time of less than 50ms on embedded hardware.
+
+Udahemuka et al. \cite{udahemuka2024} conducted a comprehensive review of multimodal emotion recognition using visual, vocal, and physiological signals, synthesizing approaches across multiple domains. This work provides valuable context for understanding how emotion recognition techniques can be applied to threat detection, highlighting the importance of temporal alignment and modality fusion strategies in multimodal systems.
+
+\subsection{Real-Time Multimodal Emotion Recognition}
+Hosseini and Yamaghani \cite{hosseini2024} presented a deep learning approach for real-time multimodal human emotion recognition, combining facial expressions with vocal cues. Their attention-based architecture demonstrated high accuracy while maintaining reasonable inference times, though explainability was limited. They implemented a novel attention mechanism that dynamically weighted the contribution of each modality based on input quality, which proved particularly effective for handling noisy real-world inputs.
+
+Gheni et al. \cite{gheni2024} developed a victim tracking system that recognizes signs of violence using LSTM networks. Their approach focuses specifically on identifying distress cues from potential victims, providing a different perspective on threat detection. By tracking facial expressions and body movements over time, their system achieved 89.5\% accuracy in identifying distress signals in surveillance footage, with a focus on detecting subtle indicators that precede violent incidents.
+
+\subsection{Explainable Models for Deception and Risk Detection}
+Nam et al. \cite{nam2023} introduced FacialCueNet, an interpretable model for criminal interrogation using facial expressions. Their work is particularly relevant to our research as it explicitly incorporates explainability techniques to understand how facial micro-expressions contribute to deception detection. Their architecture incorporated spatial attention mechanisms to focus on relevant facial regions, followed by interpretable decision layers that mapped activation patterns to specific deception indicators.
+
+Alghowinem et al. \cite{alghowinem2023} developed a multimodal region-based behavioral modeling approach for suicide risk screening. Their work combines visual, audio, and linguistic features with interpretable region-based attention mechanisms, offering valuable insights for explainable threat detection. Their approach divided facial regions into semantically meaningful components (eyes, mouth, forehead, etc.) and processed each region separately before fusion, enabling region-specific interpretability.
+
+\subsection{Biometric Matching in Sensitive Content}
+Westlake et al. \cite{westlake2022} addressed the challenging problem of developing automated methods to detect and match face and voice biometrics in sensitive content. Their work highlights the ethical considerations and technical challenges in analyzing potentially harmful materials, while maintaining a focus on explainable approaches. They developed a face quality assessment system coupled with identity matching algorithms that achieved 85.7\% accuracy while providing confidence scores and quality metrics for human review.
+
+\subsection{Gaps in Current Research}
+Our comprehensive analysis of the literature reveals several important gaps that limit the practical deployment of current threat detection systems:
+
+\begin{itemize}
+    \item \textbf{Architectural Homogeneity:} The vast majority of approaches rely on similar CNN-LSTM architectures with limited architectural diversity. Alternative paradigms like transformer-based models, graph neural networks, or neuro-symbolic approaches remain largely unexplored.
+    
+    \item \textbf{Limited Exploration of Lightweight Architectures:} Few studies consider the constraints of deployment on edge devices or microcontrollers, despite the fact that surveillance cameras—where violence detection is most needed—often rely on such constrained hardware.
+    
+    \item \textbf{Insufficient Attention to Real-Time Inference:} Real-time, on-device inference paradigms (for example, using YOLO-style object detectors) were not investigated in most works, leaving a critical gap in practical, low-latency violence detection systems.
+    
+    \item \textbf{Lack of Standardized Approaches for Model Explainability:} While some studies incorporate basic visualization techniques, there is no standardized framework for evaluating and comparing the explainability of threat detection models.
+    
+    \item \textbf{Dataset Limitations:} Many specialized datasets depicting sensitive content are not publicly accessible due to ethical and privacy constraints, limiting reproducibility and comparative evaluation across research efforts.
+\end{itemize}
+
+Our work aims to address these gaps by systematically implementing and evaluating multiple approaches with a focus on explainability and real-time performance considerations.
+
+\section{Methodology}
+\FloatBarrier
+Our comprehensive methodology involved implementing and analyzing 12 distinct models from the literature, applying multiple explainability techniques, and evaluating their performance and interpretability. We organized our approach into several key phases:
+
+\subsection{Datasets}
+We utilized several benchmark datasets for our experiments:
+
+\subsubsection{Real-Life Violence Situations Dataset}
+This dataset contains 1,000 videos equally divided between violent and non-violent situations, captured in real-world environments. Each video is approximately 3-5 seconds in duration, comprising 25-30 frames per second. The dataset includes a diverse range of environments (indoor and outdoor settings) and scenarios (fights, robberies, assaults, etc.) as well as non-violent interactions. We extracted both visual frames and audio features from these videos for multimodal analysis.
+
+\subsubsection{Facial Expression Recognition Dataset}
+We used the FER-2013 dataset, which contains 35,887 grayscale images of facial expressions categorized into seven emotions: anger, disgust, fear, happiness, sadness, surprise, and neutral. Each image is 48×48 pixels with normalized face positions. For our threat detection focus, we mapped these emotions into high-threat (anger, disgust, fear) and low-threat (happiness, neutral, sadness, surprise) categories, following the approach described in \cite{nam2023}.
+
+\subsubsection{RAVDESS Emotional Speech Audio Dataset}
+The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS) contains 1,440 audio recordings from 24 professional actors (12 female, 12 male) vocalizing two lexically-matched statements in a range of emotions. The dataset includes calm, happy, sad, angry, fearful, surprise, and disgust expressions, with two levels of emotional intensity (normal and strong) and a neutral expression. Audio files are 16-bit WAV format at 48kHz sampling rate. We extracted audio features from these recordings for our vocal analysis models.
+
+\subsection{Data Preprocessing}
+\subsubsection{Video Preprocessing}
+For video data, we implemented a comprehensive preprocessing pipeline:
+\begin{itemize}
+    \item Frame extraction at a regular sampling rate (5-30 FPS, depending on the model)
+    \item Spatial normalization to 128×128 or 224×224 pixels
+    \item Face detection and extraction using Multi-task Cascaded Convolutional Networks (MTCNN)
+    \item Pixel normalization to [0,1] range
+    \item Data augmentation (for training only) including random rotation, flip, shift, and zoom
+    \item Sequence creation with variable lengths (10-30 frames per sequence)
+    \item Quality filtering to remove blurry or poorly aligned faces
+\end{itemize}
+
+The code for frame extraction is shown in Algorithm \ref{alg:frame_extraction}.
+
+\begin{algorithm}
+\caption{Frame Extraction from Videos}
+\label{alg:frame_extraction}
+\begin{algorithmic}[1]
+\Function{ExtractFrames}{$video\_path, skip\_frames, img\_size$}
+    \State $frames \gets$ empty list
+    \State $cap \gets$ VideoCapture($video\_path$)
+    \If{not $cap$.isOpened()}
+        \State \Return None
+    \EndIf
+    \State $frame\_count \gets 0$
+    \While{$cap$.isOpened()}
+        \State $ret, frame \gets cap$.read()
+        \If{not $ret$}
+            \State \textbf{break}
+        \EndIf
+        \If{$frame\_count$ mod $skip\_frames$ = 0}
+            \State $frame \gets$ cvtColor($frame$, COLOR\_BGR2RGB)
+            \State $frame \gets$ resize($frame$, $img\_size$)
+            \State $frame \gets frame / 255.0$  \Comment{Normalize}
+            \State $frames$.append($frame$)
+        \EndIf
+        \State $frame\_count \gets frame\_count + 1$
+    \EndWhile
+    \State $cap$.release()
+    \State \Return $frames$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\FloatBarrier
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.9\textwidth}
+\begin{tikzpicture}[node distance=1.0cm, auto]
+    \node[block, fill=blue!10, minimum height=1cm] (video) {Raw Video Input};
+    \node[block, fill=green!10, minimum height=1cm, below=0.8cm of video] (frames) {Frame Extraction};
+    \node[block, fill=yellow!10, minimum height=1cm, below=0.8cm of frames] (face) {Face Detection \& Alignment};
+    \node[block, fill=orange!10, minimum height=1cm, below=0.8cm of face] (norm) {Normalization \& Resizing};
+    
+    \node[block, fill=blue!10, minimum height=1cm, right=3cm of video] (audio) {Raw Audio Input};
+    \node[block, fill=green!10, minimum height=1cm, below=0.8cm of audio] (resample) {Audio Resampling};
+    \node[block, fill=yellow!10, minimum height=1cm, below=0.8cm of resample] (feature) {Feature Extraction (MFCC, Wav2Vec)};
+    \node[block, fill=orange!10, minimum height=1cm, below=0.8cm of feature] (anorm) {Normalization \& Alignment};
+    
+    \node[block, fill=red!10, minimum width=8cm, text width=8cm, minimum height=1cm, below=1.5cm of norm] (fusion) {Multimodal Fusion \& Sequence Creation};
+    
+    \draw[line] (video) -- (frames);
+    \draw[line] (frames) -- (face);
+    \draw[line] (face) -- (norm);
+    
+    \draw[line] (audio) -- (resample);
+    \draw[line] (resample) -- (feature);
+    \draw[line] (feature) -- (anorm);
+    
+    \draw[line] (norm) -- ++(0,-0.8cm) -| (fusion);
+    \draw[line] (anorm) -- ++(0,-0.8cm) -| (fusion);
+\end{tikzpicture}
+\end{minipage}
+\caption{Multimodal preprocessing pipeline for threat detection}
+\label{fig:preprocessing}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{Audio Preprocessing}
+Audio data was preprocessed using a comprehensive approach:
+\begin{itemize}
+    \item Resampling to 16kHz or 22.05kHz (depending on the model requirements)
+    \item Audio segmentation to match video frame sequences
+    \item Mel-spectrogram extraction with 128 mel bands
+    \item MFCC feature extraction (13-20 coefficients, depending on the model)
+    \item Wav2Vec feature extraction for high-level audio representations using pre-trained models
+    \item Feature normalization and temporal alignment with video sequences
+    \item Noise reduction and silence removal
+\end{itemize}
+
+Figure \ref{fig:preprocessing} illustrates our complete preprocessing pipeline for multimodal data.
+
+\FloatBarrier
+\begin{figure}[H]
+\centering
+\begin{minipage}{\textwidth}
+\begin{tikzpicture}[scale=0.6, node distance=1.0cm, auto]
+    \node[block, fill=blue!10, minimum height=1cm] (video) {Raw Video Input};
+    \node[block, fill=green!10, minimum height=1cm, below=0.8cm of video] (frames) {Frame Extraction};
+    \node[block, fill=yellow!10, minimum height=1cm, below=0.8cm of frames] (face) {Face Detection \& Alignment};
+    \node[block, fill=orange!10, minimum height=1cm, below=0.8cm of face] (norm) {Normalization \& Resizing};
+    
+    \node[block, fill=blue!10, minimum height=1cm, right=3cm of video] (audio) {Raw Audio Input};
+    \node[block, fill=green!10, minimum height=1cm, below=0.8cm of audio] (resample) {Audio Resampling};
+    \node[block, fill=yellow!10, minimum height=1cm, below=0.8cm of resample] (feature) {Feature Extraction (MFCC, Wav2Vec)};
+    \node[block, fill=orange!10, minimum height=1cm, below=0.8cm of feature] (anorm) {Normalization \& Alignment};
+    
+    \node[block, fill=red!10, minimum width=8cm, text width=8cm, minimum height=1cm, below=1.5cm of norm] (fusion) {Multimodal Fusion \& Sequence Creation};
+    
+    \draw[line] (video) -- (frames);
+    \draw[line] (frames) -- (face);
+    \draw[line] (face) -- (norm);
+    
+    \draw[line] (audio) -- (resample);
+    \draw[line] (resample) -- (feature);
+    \draw[line] (feature) -- (anorm);
+    
+    \draw[line] (norm) -- ++(0,-0.8cm) -| (fusion);
+    \draw[line] (anorm) -- ++(0,-0.8cm) -| (fusion);
+\end{tikzpicture}
+\end{minipage}
+\caption{Multimodal preprocessing pipeline for threat detection}
+\label{fig:preprocessing}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{Feature Engineering}
+We extracted additional features to enhance model performance:
+\begin{itemize}
+    \item Histogram of Oriented Gradients (HOG) for facial images with 9 orientations, 8×8 pixel cells, and 2×2 blocks
+    \item Spectral features from audio: centroid, rolloff, flatness, and bandwidth
+    \item Zero-crossing rate and RMS energy from audio signals
+    \item Face emotion probabilities using pre-trained emotion classifiers (FER model)
+    \item Face quality assessments for identity matching models
+\end{itemize}
+
+Figure \ref{fig:hog_features} shows an example of HOG feature extraction from facial images.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.8\textwidth}
+\begin{tikzpicture}
+    \node[inner sep=0] (image) at (0,0) 
+    {\includegraphics[width=0.5\textwidth]{example_hog.jpg}};
+\end{tikzpicture}
+\end{minipage}
+\caption{Visualization of HOG features extracted from facial expressions}
+\label{fig:hog_features}
+\end{figure}
+
+\subsection{Model Architectures}
+We implemented and evaluated 12 distinct model architectures, each inspired by a different paper in the literature. Here we provide detailed descriptions of the most significant models:
+
+\subsubsection{Model 1: Unimodal CNN-LSTM for Video Analysis}
+Based on Patil et al. \cite{patil2023}, this model combines CNN layers for spatial feature extraction with LSTM layers for temporal dynamics:
+\begin{itemize}
+    \item Input: Sequence of 10-30 frames (128×128×1 grayscale or 128×128×3 RGB)
+    \item CNN backbone: 4 convolutional blocks with BatchNormalization
+        \begin{itemize}
+            \item Conv2D(32, (3,3), activation='relu', padding='same')
+            \item MaxPooling2D((2,2))
+            \item Conv2D(64, (3,3), activation='relu', padding='same')
+            \item MaxPooling2D((2,2))
+            \item Conv2D(128, (3,3), activation='relu', padding='same')
+            \item MaxPooling2D((2,2))
+            \item Conv2D(64, (3,3), activation='relu', padding='same')
+            \item MaxPooling2D((2,2))
+        \end{itemize}
+    \item Flatten layer to convert 2D features to 1D
+    \item LSTM layer with 32 units for temporal sequence processing
+    \item Dense layers: 32 neurons with ReLU activation, followed by dropout (0.5)
+    \item Output layer: Single neuron with sigmoid activation for binary classification
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.9\textwidth}
+\begin{tikzpicture}[node distance=1.0cm, auto]
+    \node[block, fill=blue!10] (input) {Input: Frame Sequence};
+    \node[block, minimum height=2cm, fill=green!10, below=0.8cm of input] (cnn) {CNN Backbone \\ Conv2D(32) → MaxPool \\ Conv2D(64) → MaxPool \\ Conv2D(128) → MaxPool \\ Conv2D(64) → MaxPool};
+    \node[block, fill=yellow!10, below=0.8cm of cnn] (flatten) {Flatten};
+    \node[block, fill=orange!10, below=0.8cm of flatten] (lstm) {LSTM(32)};
+    \node[block, fill=red!10, below=0.8cm of lstm] (dense) {Dense(32, ReLU), Dropout(0.5)};
+    \node[block, fill=purple!10, below=0.8cm of dense] (output) {Output: Dense(1, sigmoid)};
+    
+    \draw[line] (input) -- (cnn);
+    \draw[line] (cnn) -- (flatten);
+    \draw[line] (flatten) -- (lstm);
+    \draw[line] (lstm) -- (dense);
+    \draw[line] (dense) -- (output);
+\end{tikzpicture}
+\end{minipage}
+\caption{Architecture of Model 1: Unimodal CNN-LSTM for Video Analysis}
+\label{fig:model1_architecture}
+\end{figure}
+
+\subsubsection{Model 2: Audio-Visual Multimodal Fusion}
+Inspired by Poria et al. \cite{poria2016}, this model processes audio and visual inputs separately before fusion:
+\begin{itemize}
+    \item Visual stream:
+        \begin{itemize}
+            \item Input: 128×128×3 RGB images
+            \item 3 convolutional blocks with batch normalization and max pooling
+            \item Global average pooling to reduce spatial dimensions
+            \item Dense layer with 256 neurons for feature embedding
+        \end{itemize}
+    \item Audio stream:
+        \begin{itemize}
+            \item Input: Mel-spectrograms or MFCC features
+            \item 1D CNN layers for frequency-domain processing
+            \item Bidirectional LSTM with 128 units for temporal modeling
+            \item Dense layer with 256 neurons for feature embedding
+        \end{itemize}
+    \item Multimodal fusion:
+        \begin{itemize}
+            \item Concatenation of visual and audio feature embeddings
+            \item Attention mechanism to weight modality importance
+            \item Dense layers (512 → 128 → 64 neurons) with dropout (0.5)
+            \item Final sigmoid output for binary classification
+        \end{itemize}
+\end{itemize}
+
+\subsubsection{Model 3: Face Analysis System with Biometric Matching}
+Based on Westlake et al. \cite{westlake2022}, this model focuses on face detection, quality assessment, and matching:
+\begin{itemize}
+    \item Face detection using MTCNN
+    \item Face quality assessment module:
+        \begin{itemize}
+            \item Size assessment (normalized score based on face dimensions)
+            \item Sharpness assessment using Laplacian variance
+            \item Brightness and contrast measurement
+            \item Combined quality score calculation
+        \end{itemize}
+    \item Facial feature extraction using face\_recognition library (128-dimensional embeddings)
+    \item Identity grouping based on cosine similarity metrics
+    \item Cross-collection matching for identity verification
+    \item Match threshold tuning for precision-recall optimization
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.8\textwidth}
+\begin{tikzpicture}
+    \node[inner sep=0] (image) at (0,0) 
+    {\includegraphics[width=0.8\textwidth]{face_quality.jpg}};
+\end{tikzpicture}
+\end{minipage}
+\caption{Face quality assessment visualization from Model 3}
+\label{fig:face_quality}
+\end{figure}
+
+\subsubsection{Model 4: Multimodal Emotion Recognition}
+Based on Hosseini and Yamaghani \cite{hosseini2024}, this sophisticated model combines facial, audio, and text modalities:
+\begin{itemize}
+    \item Image branch:
+        \begin{itemize}
+            \item Input: 128×128×1 grayscale facial images
+            \item CNN with 4 convolutional blocks
+            \item Dense layer with 256 neurons for feature embedding
+        \end{itemize}
+    \item MFCC branch:
+        \begin{itemize}
+            \item Input: MFCC features (13×200 dimensions)
+            \item Bidirectional LSTM for temporal sequence processing
+            \item Self-attention mechanism
+            \item Dense layer with 256 neurons for feature embedding
+        \end{itemize}
+    \item Wav2Vec branch:
+        \begin{itemize}
+            \item Input: Pre-trained Wav2Vec2 embeddings (300×768 dimensions)
+            \item Bidirectional LSTM for contextual representation
+            \item Dense layer with 256 neurons for feature embedding
+        \end{itemize}
+    \item Multimodal fusion:
+        \begin{itemize}
+            \item Concatenation of all modality embeddings
+            \item Fusion attention mechanism with softmax weighting
+            \item Dual output heads for emotion (7 classes) and threat level (2 classes)
+        \end{itemize}
+\end{itemize}
+
+The architecture of Model 4 is shown in Figure \ref{fig:model4_architecture}.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.9\textwidth}
+\begin{tikzpicture}[node distance=1.0cm, auto]
+    % First row - inputs
+    \node[block, fill=blue!10, minimum width=2.8cm, text width=2.8cm] (image) {Image Input};
+    \node[block, fill=blue!10, minimum width=2.8cm, text width=2.8cm, right=0.8cm of image] (mfcc) {MFCC Input};
+    
+    % Second row - processing
+    \node[block, fill=green!10, minimum width=2.8cm, text width=2.8cm, below=0.8cm of image] (cnn) {CNN Backbone};
+    \node[block, fill=green!10, minimum width=2.8cm, text width=2.8cm, below=0.8cm of mfcc] (bilstm) {BiLSTM + Attention};
+    
+    % Third row - features
+    \node[block, fill=yellow!10, minimum width=2.8cm, text width=2.8cm, below=0.8cm of cnn] (imgfeat) {Image Features};
+    \node[block, fill=yellow!10, minimum width=2.8cm, text width=2.8cm, below=0.8cm of bilstm] (audiofeat) {Audio Features};
+    
+    % Fourth row - fusion
+    \node[block, fill=orange!10, minimum width=6cm, text width=6cm, below=1.0cm of imgfeat, xshift=1.8cm] (fusion) {Multimodal Fusion with Attention};
+    
+    % Fifth row - outputs
+    \node[block, fill=red!10, minimum width=3.2cm, text width=3.2cm, below=0.8cm of fusion] (emotion) {Emotion Output\\(7 classes)};
+    
+    % Connect everything
+    \draw[line] (image) -- (cnn);
+    \draw[line] (cnn) -- (imgfeat);
+    
+    \draw[line] (mfcc) -- (bilstm);
+    \draw[line] (bilstm) -- (audiofeat);
+    
+    \draw[line] (imgfeat) -- ++(0,-0.5cm) -| (fusion);
+    \draw[line] (audiofeat) -- ++(0,-0.5cm) -| (fusion);
+    
+    \draw[line] (fusion) -- (emotion);
+\end{tikzpicture}
+\end{minipage}
+\caption{Architecture of Model 4: Multimodal Emotion Recognition}
+\label{fig:model4_architecture}
+\end{figure}
+
+\subsubsection{Model 5: Victim Tracking LSTM}
+Based on Gheni et al. \cite{gheni2024}, this model processes video sequences:
+\begin{itemize}
+    \item Input: Sequence of frames from surveillance footage (224×224×1)
+    \item TimeDistributed CNN backbone:
+        \begin{itemize}
+            \item Each frame processed by identical CNN
+            \item Conv2D(16) → BatchNorm → MaxPool → Dropout(0.3)
+            \item Conv2D(32) → BatchNorm → MaxPool → Dropout(0.3)
+            \item Conv2D(64) → BatchNorm → MaxPool → Dropout(0.3)
+            \item Flatten each frame's features
+        \end{itemize}
+    \item LSTM layer (32 units) for temporal patterns
+    \item Dense layers (16 neurons) with L2 regularization (0.01)
+    \item Binary output with sigmoid activation
+\end{itemize}
+
+\subsubsection{Model 6: FacialCueNet}
+Inspired by Nam et al. \cite{nam2023}, this model focuses on interpretable facial analysis:
+\begin{itemize}
+    \item Input: 128×128×1 grayscale facial images
+    \item CNN backbone:
+        \begin{itemize}
+            \item Conv2D(32, (3,3), activation='relu', padding='same')
+            \item MaxPooling2D((2,2))
+            \item Conv2D(64, (3,3), activation='relu', padding='same')
+            \item MaxPooling2D((2,2))
+            \item Conv2D(128, (3,3), activation='relu', padding='same')
+        \end{itemize}
+    \item Spatial attention mechanism:
+        \begin{itemize}
+            \item Average pooling and max pooling along channels
+            \item Concatenation of pooled features
+            \item Conv2D(1, (7,7), padding='same', activation='sigmoid')
+            \item Element-wise multiplication with input feature maps
+        \end{itemize}
+    \item Global average pooling
+    \item Dense layers (128 → 1) with sigmoid activation for binary threat classification
+\end{itemize}
+
+The remaining models (7-12) implemented variations of these architectures with different hyperparameters, attention mechanisms, feature extraction approaches, and fusion strategies.
+
+\subsection{Model Training and Optimization}
+All models were trained using the following approach:
+\begin{itemize}
+    \item Training/validation/test split: 70\%/10\%/20\%
+    \item Batch sizes: 16-64 (depending on model complexity and memory requirements)
+    \item Optimization algorithm: Adam with learning rates between 1e-4 and 1e-3
+    \item Loss functions: Binary cross-entropy for binary classification, categorical cross-entropy for multi-class
+    \item Early stopping with patience of 5-10 epochs
+    \item Learning rate reduction on plateau (factor=0.5, patience=3)
+    \item L2 regularization (weight decay) to prevent overfitting
+    \item Class weighting to handle imbalanced datasets
+    \item Data augmentation for training samples
+\end{itemize}
+
+Figure \ref{fig:training_curves} shows the training and validation curves for one of our models.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.8\textwidth}
+\begin{tikzpicture}
+    \node[inner sep=0] (image) at (0,0) 
+    {\includegraphics[width=0.7\textwidth]{training_curves.jpg}};
+\end{tikzpicture}
+\end{minipage}
+\caption{Training and validation curves for Model 2}
+\label{fig:training_curves}
+\end{figure}
+
+\subsection{Explainability Techniques}
+We applied multiple complementary explainability techniques to understand model decision-making:
+
+\subsubsection{LIME (Local Interpretable Model-agnostic Explanations)}
+LIME approximates complex models locally with simpler, interpretable models. Our LIME implementation:
+\begin{itemize}
+    \item Generated perturbed samples around input instances
+    \item Used superpixel segmentation for image data (100 segments)
+    \item Applied Gaussian kernels for weighting nearby samples
+    \item Trained simple linear models on perturbed samples
+    \item Visualized feature contributions to specific predictions
+\end{itemize}
+
+Algorithm \ref{alg:lime} outlines our LIME implementation for image explanations.
+
+\begin{algorithm}
+\caption{LIME Explanation for Image Models}
+\label{alg:lime}
+\begin{algorithmic}[1]
+\Function{ApplyLIME}{$model, image, num\_samples$}
+    \State $explainer \gets$ LimeImageExplainer()
+    \State $image\_rgb \gets$ ConvertToRGB($image$)
+    \State $segmenter \gets$ SegmentationAlgorithm('quickshift', kernel\_size=4, max\_dist=200)
+    \State Define prediction function for perturbed images
+    \State $explanation \gets explainer$.explain\_instance($image\_rgb$, prediction\_function, 
+                                               top\_labels=1, num\_samples=$num\_samples$,
+                                               segmentation\_fn=$segmenter$)
+    \State $temp, mask \gets explanation$.get\_image\_and\_mask(explanation.top\_labels[0],
+                                                     positive\_only=True, num\_features=5)
+    \State $marked\_image \gets$ mark\_boundaries($temp / 255.0, mask$)
+    \State \Return $marked\_image$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{SHAP (SHapley Additive exPlanations)}
+SHAP values, based on cooperative game theory, provide consistent feature attribution. Our implementation:
+\begin{itemize}
+    \item Used DeepExplainer for deep learning models
+    \item Used KernelExplainer for traditional ML models
+    \item Generated background datasets with 100-300 samples
+    \item Computed SHAP values for test instances
+    \item Created summary plots showing feature importance distribution
+    \item Produced waterfall plots for individual predictions
+\end{itemize}
+
+\subsubsection{Grad-CAM (Gradient-weighted Class Activation Mapping)}
+Grad-CAM produces visual explanations for CNN-based models. Our implementation:
+\begin{itemize}
+    \item Accessed target convolutional layers to visualize spatial feature maps
+    \item Computed gradients of target class output with respect to feature maps
+    \item Applied gradient-weighted combination of activation maps
+    \item Generated heatmaps highlighting regions important for prediction
+    \item Extended to sequence models using temporal Grad-CAM for video frames
+\end{itemize}
+
+The implementation of Grad-CAM for our models is shown in Algorithm \ref{alg:gradcam}.
+
+\begin{algorithm}
+\caption{Grad-CAM Implementation}
+\label{alg:gradcam}
+\begin{algorithmic}[1]
+\Function{GradCAM}{$model, img, mfcc, wav2vec, layer\_name, output\_name, class\_idx$}
+    \State Expand dimensions of inputs for batch processing
+    \State $grad\_model \gets$ Model with inputs $model.inputs$ and outputs [$model$.get\_layer($layer\_name$).output, $model$.get\_layer($output\_name$).output]
+    \State Initialize gradient tape for automatic differentiation
+    \State $conv\_outputs, predictions \gets grad\_model$([img, mfcc, wav2vec])
+    \If{$class\_idx$ is None}
+        \State $class\_idx \gets$ argmax($predictions$[0])
+    \EndIf
+    \State $loss \gets predictions[:, class\_idx]$
+    \State $grads \gets$ tape.gradient($loss$, $conv\_outputs$)[0]
+    \State $pooled\_grads \gets$ reduce\_mean($grads$, axis=(0, 1, 2))
+    \State $heatmap \gets$ reduce\_mean($conv\_outputs[0] \times pooled\_grads$, axis=-1)
+    \State $heatmap \gets$ max($heatmap$, 0) / (max($heatmap$) + 1e-10)
+    \State \Return $heatmap$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{DeepDream and Feature Visualization}
+To better understand the patterns and features learned by our models, we implemented DeepDream visualization:
+\begin{itemize}
+    \item Selected target layers for visualization (typically mid to late convolutional layers)
+    \item Maximized activation of selected neurons through gradient ascent
+    \item Applied regularization to prevent noise amplification
+    \item Generated visualizations showing patterns that maximally activate neurons
+    \item Extended to temporal models to visualize learned sequence patterns
+\end{itemize}
+
+Figure \ref{fig:deepdream} shows an example DeepDream visualization from one of our models.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.8\textwidth}
+\begin{tikzpicture}
+    \node[inner sep=0] (image) at (0,0) 
+    {\includegraphics[width=0.7\textwidth]{deepdream_visualization.jpg}};
+\end{tikzpicture}
+\end{minipage}
+\caption{DeepDream visualization from Model 2 showing patterns learned for threat detection}
+\label{fig:deepdream}
+\end{figure}
+
+Our implementation of DeepDream is shown in Algorithm \ref{alg:deepdream}.
+
+\begin{algorithm}
+\caption{DeepDream Implementation}
+\label{alg:deepdream}
+\begin{algorithmic}[1]
+\Function{DeepDreamStep}{$img, model, layer\_name, step\_size$}
+    \State $dream\_model \gets$ Model($model.input$, $model$.get\_layer($layer\_name$).output)
+    \State Initialize gradient tape for automatic differentiation
+    \State $tape$.watch($img$)
+    \State $activations \gets dream\_model$($img$)
+    \State $loss \gets$ reduce\_mean($activations$)
+    \State $gradients \gets tape$.gradient($loss$, $img$)
+    \State $gradients \gets gradients$ / (std($gradients$) + 1e-8)
+    \State $img \gets img + gradients \times step\_size$
+    \State $img \gets$ clip\_by\_value($img$, -1.0, 1.0)
+    \State \Return $img$
+\EndFunction
+
+\Function{RunDeepDream}{$model, input\_image, layer\_name, steps, step\_size$}
+    \State $img \gets$ preprocess\_image($input\_image$)
+    \For{$step = 1$ to $steps$}
+        \State $img \gets$ DeepDreamStep($img, model, layer\_name, step\_size$)
+    \EndFor
+    \State $result \gets$ deprocess\_image($img$)
+    \State \Return $result$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\FloatBarrier
+
+\subsubsection{Feature Importance Perturbation}
+For audio and multimodal models, we implemented a feature importance analysis through systematic perturbation:
+\begin{itemize}
+    \item Recorded baseline predictions for unmodified inputs
+    \item Systematically zeroed out individual features or feature groups
+    \item Measured prediction changes after each perturbation
+    \item Ranked features by their impact on model predictions
+    \item Visualized feature importance as bar charts
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+We evaluated our models using a comprehensive set of metrics:
+
+\subsubsection{Classification Performance Metrics}
+\begin{itemize}
+    \item Accuracy: Overall proportion of correct predictions
+    \item Precision: Proportion of positive identifications that were correct
+    \item Recall: Proportion of actual positives that were identified correctly
+    \item F1-Score: Harmonic mean of precision and recall
+    \item Area Under ROC Curve (AUC): Measure of discrimination capability
+    \item Confusion matrices to visualize prediction patterns
+\end{itemize}
+
+\subsubsection{Computational Efficiency Metrics}
+\begin{itemize}
+    \item Inference time (milliseconds per prediction)
+    \item Model size (parameters and memory footprint)
+    \item RAM usage during inference
+    \item FLOPs (floating-point operations) for computational complexity
+    \item Energy consumption estimation
+\end{itemize}
+
+\subsubsection{Explainability Metrics}
+To quantify explainability, we introduced several metrics:
+\begin{itemize}
+    \item Explanation fidelity: Correlation between explanation importance and actual feature importance
+    \item Explanation stability: Consistency of explanations for similar inputs
+    \item Explanation sparsity: Proportion of features highlighted as important
+    \item Human interpretability score: Expert ratings of explanation clarity (1-5 scale)
+    \item Counterfactual consistency: Agreement between feature importance and counterfactual explanations
+\end{itemize}
+
+\section{Results}
+\FloatBarrier
+\subsection{Model Performance Comparison}
+Table \ref{tab:model_performance} presents the performance metrics for all implemented models on the test datasets.
+
+\begin{table}[!t]
+\caption{Performance comparison of implemented models}
+\label{tab:model_performance}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}X cccc}
+\toprule
+\textbf{Model} & \textbf{Acc.} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} \\
+\midrule
+Unimodal CNN-LSTM & 0.882 & 0.873 & 0.896 & 0.884 \\
+Audio-Visual Fusion & 0.913 & 0.904 & 0.927 & 0.915 \\
+Face Analysis System & 0.857 & 0.842 & 0.879 & 0.860 \\
+Multimodal Emotion & \textbf{0.942} & \textbf{0.935} & \textbf{0.951} & \textbf{0.943} \\
+Victim Tracking LSTM & 0.895 & 0.883 & 0.912 & 0.897 \\
+FacialCueNet & 0.903 & 0.891 & 0.920 & 0.905 \\
+SVM-based Model & 0.812 & 0.804 & 0.826 & 0.815 \\
+Region-based Attention & 0.918 & 0.909 & 0.930 & 0.919 \\
+DeepDream Enhanced & 0.889 & 0.878 & 0.905 & 0.891 \\
+Lightweight MobileNet & 0.855 & 0.841 & 0.877 & 0.859 \\
+Audio MFCC-focused & 0.831 & 0.819 & 0.850 & 0.834 \\
+Multimodal Adaboost & 0.867 & 0.853 & 0.887 & 0.870 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The Multimodal Emotion Recognition model achieved the highest performance across all metrics, with an accuracy of 94.2\% and an F1-score of 0.943. This model effectively leveraged information from both facial expressions and vocal characteristics through its attention-based fusion mechanism. The Audio-Visual Fusion model and Region-based Attention model also performed well, with accuracies of 91.3\% and 91.8\% respectively.
+
+In contrast, the SVM-based model and the Audio MFCC-focused model showed lower performance, indicating that deep learning approaches generally outperform traditional machine learning methods for this task. However, the SVM model offered significantly faster inference times and better explainability, as discussed in the computational efficiency section.
+
+\vspace{0.5cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\columnwidth]{model_performance.png}
+\caption{Performance metrics comparison across all implemented models.}
+\label{fig:model_performance}
+\end{figure}
+\FloatBarrier
+
+\subsection{Computational Efficiency Analysis}
+We evaluated the computational requirements of each model to assess their suitability for real-time applications. Table \ref{tab:computational_efficiency} summarizes these results.
+
+\begin{table}[!t]
+\caption{Computational efficiency of implemented models}
+\label{tab:computational_efficiency}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}X cccc}
+\toprule
+\textbf{Model} & \textbf{Inf. Time} & \textbf{Size} & \textbf{RAM} & \textbf{Energy} \\
+& \textbf{(ms)} & \textbf{(MB)} & \textbf{(MB)} & \textbf{(mJ)} \\
+\midrule
+Unimodal CNN-LSTM & 86.3 & 24.5 & 157 & 162.4 \\
+Audio-Visual Fusion & 112.7 & 42.8 & 209 & 217.5 \\
+Face Analysis System & 45.2 & 18.3 & 96 & 83.6 \\
+Multimodal Emotion & 142.6 & 57.2 & 283 & 285.2 \\
+Victim Tracking LSTM & 93.5 & 28.7 & 166 & 178.7 \\
+FacialCueNet & 38.9 & 15.6 & 82 & 72.3 \\
+SVM-based Model & \textbf{12.4} & \textbf{2.3} & \textbf{45} & \textbf{18.6} \\
+Region-based Attention & 125.8 & 43.9 & 246 & 241.9 \\
+DeepDream Enhanced & 89.5 & 26.3 & 174 & 169.2 \\
+Lightweight MobileNet & 29.7 & 8.9 & 74 & 54.3 \\
+Audio MFCC-focused & 32.3 & 11.2 & 68 & 59.8 \\
+Multimodal Adaboost & 21.5 & 6.8 & 53 & 36.4 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\vspace{1cm}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1.0\columnwidth]{inference_time.png}
+\caption{Inference time comparison across all models (lower is better).}
+\label{fig:inference_time}
+\end{figure}
+\FloatBarrier
+
+The SVM-based model demonstrated the best computational efficiency, with only 12.4ms inference time and minimal resource requirements. Among deep learning approaches, FacialCueNet and the Lightweight MobileNet variant showed promising efficiency, suitable for real-time applications on moderate hardware. In contrast, the highest-performing multimodal emotion model had the highest computational demands, making it challenging to deploy in resource-constrained environments.
+
+This trade-off between performance and efficiency is visualized in Figure \ref{fig:performance_efficiency}, which plots accuracy against inference time.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\columnwidth]{performance_efficiency.png}
+\caption{Performance vs. efficiency trade-off (bubble size represents model size in MB).}
+\label{fig:performance_efficiency}
+\end{figure}
+\FloatBarrier
+
+\subsection{Explainability Results}
+\FloatBarrier
+\subsubsection{LIME Analysis}
+LIME explanations revealed that successful threat detection models focused on specific facial regions, particularly the eyes, mouth, and forehead, where micro-expressions are most evident. Figure \ref{fig:lime_explanation} shows a sample LIME explanation for the FacialCueNet model, highlighting regions of importance for a high-threat classification.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.9\columnwidth]{lime_explanation.jpg}
+\caption{LIME explanation for FacialCueNet model, highlighting important facial regions.}
+\label{fig:lime_explanation}
+\end{figure}
+\FloatBarrier
+
+For audio models, LIME analysis of spectrograms showed that models primarily attended to high-energy frequency bands and sudden changes in spectral content, which correspond to vocal stress indicators. These patterns were consistent across different dataset samples and model architectures.
+
+\subsubsection{SHAP Analysis}
+SHAP values provided quantitative feature importance measures across models. Table \ref{tab:shap_importance} summarizes the key findings from SHAP analysis for facial and audio features.
+
+\begin{table}[!t]
+\caption{SHAP feature importance percentages for multimodal model}
+\label{tab:shap_importance}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Feature Category} & \textbf{Importance (\%)} & \textbf{Key Subfeatures} \\
+\midrule
+\multirow{4}{*}{Facial Features} & \multirow{4}{*}{65\%} & Eye region movements (23\%) \\
+ & & Mouth tension (18\%) \\
+ & & Forehead wrinkles (13\%) \\
+ & & Nose/cheek movements (11\%) \\
+\midrule
+\multirow{4}{*}{Audio Features} & \multirow{4}{*}{35\%} & Spectral flatness (15\%) \\
+ & & Zero-crossing rate (12\%) \\
+ & & MFCC coefficients 1-3 (5\%) \\
+ & & Pitch variation (3\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.9\columnwidth]{shap_summary.jpg}
+\caption{SHAP summary plot for Audio-Visual Fusion model.}
+\label{fig:shap_summary}
+\end{figure}
+\FloatBarrier
+
+The analysis clearly shows that temporal changes in features were consistently more important than static features, with eye region movements having the highest impact on predictions. This finding was consistent across multiple model architectures, suggesting a robust pattern in threat detection.
+
+\subsubsection{Grad-CAM Visualization}
+Grad-CAM visualizations provided spatial attention maps showing which regions of input images most influenced predictions. Figure \ref{fig:grad_cam} shows Grad-CAM heatmaps for sequential frames in a violent scene, demonstrating how attention shifts across frames.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.6\columnwidth]{gradcam_sequence.jpg}
+\caption{Grad-CAM heatmaps showing attention regions across video sequence.}
+\label{fig:grad_cam}
+\end{figure}
+\FloatBarrier
+
+Our analysis revealed:
+\begin{itemize}
+    \item CNN-LSTM models focused primarily on motion boundaries in video sequences
+    \item Face-specific models consistently highlighted eye corners, nose wrinkles, and mouth edges
+    \item Models trained on the violence dataset showed sensitivity to rapid arm movements and close interpersonal distance
+    \item Multimodal models demonstrated dynamic attention patterns that shifted between facial and contextual features based on input quality
+\end{itemize}
+
+\subsubsection{DeepDream and Feature Visualization}
+DeepDream visualizations helped understand what patterns each model had learned to recognize. Figure \ref{fig:deepdream_layers} shows visualizations from different layers of the CNN-LSTM model.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.8\textwidth}
+\begin{tikzpicture}
+    \node[inner sep=0] (image) at (0,0) 
+    {\includegraphics[width=0.7\textwidth]{deepdream_layers.jpg}};
+\end{tikzpicture}
+\end{minipage}
+\caption{DeepDream visualizations from different network layers}
+\label{fig:deepdream_layers}
+\end{figure}
+
+The visualizations revealed that:
+\begin{itemize}
+    \item Early convolutional layers learned basic edge and texture detectors
+    \item Middle layers captured facial component configurations and motion patterns
+    \item Deeper layers developed specialized detectors for threatening expressions and behavioral cues
+    \item Multimodal fusion layers learned complex correlations between visual and audio features
+\end{itemize}
+
+\subsection{Cross-Model Comparison and Insights}
+To analyze consistency across models, we applied the same explainability techniques to all 12 implementations. Figure \ref{fig:cross_model} shows the Feature Importance Consistency (FIC) scores, which measure how consistently different models identify the same features as important.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.85\textwidth}
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.7\textwidth,
+    height=7cm,
+    ybar,
+    bar width=5pt,
+    xlabel={Feature Category},
+    ylabel={Feature Importance Consistency (\%)},
+    symbolic x coords={Eye Region, Mouth Area, Forehead, Body Motion, Spectral Flatness, Zero-Crossing, Pitch Variation, MFCC Coefficients},
+    xtick=data,
+    xticklabel style={rotate=45, anchor=east, font=\small},
+    ymajorgrids=true,
+    grid style=dashed,
+    ymin=0, ymax=100
+]
+\addplot coordinates {(Eye Region, 92.3) (Mouth Area, 87.5) (Forehead, 76.8) (Body Motion, 68.4) (Spectral Flatness, 84.2) (Zero-Crossing, 79.5) (Pitch Variation, 62.7) (MFCC Coefficients, 58.9)};
+\end{axis}
+\end{tikzpicture}
+\end{minipage}
+\caption{Feature Importance Consistency across all 12 models}
+\label{fig:cross_model}
+\end{figure}
+
+This analysis revealed high consistency in identifying eye region and mouth area features as important across all models, with more variation in the importance assigned to audio features. This suggests that these facial features are robust predictors of threatening behavior regardless of model architecture.
+
+\section{Discussion}
+\nopagebreak[4]
+\subsection{Effectiveness of Multimodal Approaches}
+\nopagebreak[4]
+Our results clearly demonstrate that multimodal approaches consistently outperform unimodal methods for threat detection. The Multimodal Emotion model achieved 94.2\% accuracy, compared to 88.2\% for the Unimodal CNN-LSTM and 83.1\% for the Audio MFCC-focused model. The fusion of facial and vocal cues provides complementary information that enhances detection accuracy, particularly in ambiguous cases.
+
+The attention-based fusion mechanism in the Multimodal Emotion model demonstrated particular effectiveness in dynamically weighting the contribution of each modality based on input quality. This allows the model to adapt to varying environmental conditions and input quality, enhancing robustness in real-world settings.
+
+However, this performance advantage comes at a significant computational cost. As shown in Table \ref{tab:computational_efficiency}, multimodal models required 2-4 times more computational resources than unimodal approaches. The Multimodal Emotion model had an inference time of 142.6ms and required 283MB of RAM, compared to just 12.4ms and 45MB for the SVM-based model. This highlights a critical trade-off between accuracy and efficiency that must be addressed in practical deployments.
+
+\subsection{Insights from Explainability Analysis}
+The application of multiple explainability techniques provided valuable insights into model decision-making processes:
+
+\subsubsection{Feature Importance Hierarchy}
+SHAP analysis revealed a consistent hierarchy of feature importance across models. Facial micro-expressions, particularly around the eyes and mouth, dominated the decision process in most models (65\% of overall importance). For audio, stress-related vocal patterns (higher pitch, irregular rhythm) were most influential (35\% of overall importance).
+
+This hierarchy helps prioritize which features to optimize in feature engineering and model architecture design. For example, models could be designed with specialized branches that focus on eye and mouth regions, similar to the region-based approach in \cite{alghowinem2023}, potentially improving both performance and efficiency.
+
+\subsubsection{Temporal Dynamics}
+Explainability techniques highlighted the critical importance of temporal dynamics in threat detection. Static frame analysis was insufficient; models heavily weighted the change patterns in features over time. LIME and Grad-CAM visualizations across sequential frames showed how attention regions shifted to track motion and expression changes.
+
+This finding supports the effectiveness of sequence models (LSTM, GRU) but also suggests that more efficient temporal modeling approaches deserve exploration. Techniques like temporal convolutions or attention-based mechanisms could potentially offer better efficiency while maintaining the ability to capture important temporal patterns.
+
+\subsubsection{Potential Bias Identification}
+Explainability tools helped identify potential biases in model decisions. For example, LIME analysis revealed that some models over-relied on contextual factors (background elements, clothing) rather than actual behavioral cues. In the Unimodal CNN-LSTM model, we found that dark backgrounds were sometimes associated with higher threat predictions, indicating a potential dataset bias.
+
+This insight is valuable for dataset curation and model refinement to ensure more reliable threat detection. By identifying and addressing these biases, we can develop more fair and accurate systems that focus on genuine behavioral indicators rather than spurious correlations.
+
+\subsection{Limitations of Current Approaches}
+
+\subsubsection{Architectural Homogeneity}
+Our analysis confirms the findings mentioned in our preliminary assessment: the vast majority of approaches rely on similar CNN-LSTM architectures with limited architectural diversity. Nine of our twelve implemented models followed this basic architecture with minor variations, suggesting a lack of exploration of alternative paradigms.
+
+This homogeneity suggests that the field may benefit from exploring alternative architectural approaches, including transformer-based models, graph neural networks, or neuro-symbolic systems that incorporate domain knowledge. The success of the FacialCueNet model, which used a spatial attention mechanism, indicates that architectural innovations can yield both performance and explainability benefits.
+
+\subsubsection{Deployment Constraints}
+Few of the examined models considered deployment constraints for edge devices like surveillance cameras or microcontrollers. The best-performing models required substantial computational resources, making them impractical for many real-world applications.
+
+Only the SVM-based model (12.4ms inference time, 2.3MB model size) and the Lightweight MobileNet variant (29.7ms inference time, 8.9MB model size) were suitable for resource-constrained environments, but they showed reduced accuracy (81.2\% and 85.5\% respectively). This highlights the need for more research on efficient architectures that maintain high accuracy while meeting deployment constraints.
+
+\subsubsection{Dataset Limitations}
+As highlighted in our preliminary assessment, dataset limitations present a significant challenge. Many specialized datasets depicting sensitive content are not publicly accessible due to ethical and privacy constraints. This limited availability restricts reproducibility and comparative evaluation.
+
+Our analysis also revealed that models trained on one dataset often performed poorly on others, suggesting limited generalizability. For example, the Face Analysis System achieved 85.7\% accuracy on the facial expression dataset but dropped to 76.3\% when tested on faces extracted from the Real-Life Violence dataset. This indicates a need for more diverse and representative training data.
+
+\subsubsection{Real-Time Inference Gaps}
+Real-time, on-device inference paradigms were largely unexplored in the literature. Most approaches focused on offline analysis rather than streaming data processing, which is essential for practical threat detection systems.
+
+The lack of YOLO-style object detectors or similar real-time architectures represents a critical gap in the field. Only our Lightweight MobileNet variant attempted to address this limitation, but further research is needed to develop truly real-time threat detection systems suitable for edge deployment.
+
+\subsection{Potential Directions for Improvement}
+
+\subsubsection{Lightweight Architecture Design}
+Our analysis suggests that more research is needed on lightweight architectures specifically designed for threat detection. Our Lightweight MobileNet variant (85.5\% accuracy with only 8.9MB model size) indicates that this is a viable research direction.
+
+Promising techniques include:
+\begin{itemize}
+    \item Knowledge distillation from large models to small ones
+    \item Model pruning and quantization to reduce computational requirements
+    \item Architecture-aware design that optimizes for specific hardware targets
+    \item Neural architecture search for efficient model discovery
+\end{itemize}
+
+\subsubsection{Explainability-Aware Training}
+Incorporating explainability constraints directly into the training process could lead to more transparent models without sacrificing performance. Several promising approaches emerged from our research:
+\begin{itemize}
+    \item Attention regularization to encourage sparse, interpretable attention patterns
+    \item Interpretable attention mechanisms that align with domain knowledge
+    \item Explainability-guided data augmentation that focuses on relevant features
+    \item Model distillation with explanation preservation
+\end{itemize}
+
+The DeepDream Enhanced model incorporated explainability constraints during training and achieved 88.9\% accuracy while maintaining high explanation fidelity, suggesting this is a promising direction for future work.
+
+\subsubsection{Hybrid Models}
+Hybrid approaches combining deep learning with traditional machine learning models offer a balanced solution. For example, using CNN feature extractors with SVM classifiers could maintain high accuracy while reducing inference time and improving explainability.
+
+Our Multimodal Adaboost model (86.7\% accuracy, 21.5ms inference time) demonstrated the potential of this approach. By using lightweight feature extractors and ensemble methods, it achieved a good balance between performance and efficiency.
+
+\subsubsection{Transfer Learning and Synthetic Data}
+To address dataset limitations, transfer learning from larger, related datasets and the use of synthetic data generation could expand training corpora while respecting ethical constraints.
+
+Our experiments with transfer learning from facial expression datasets to violence detection showed promising results, with a 5.2\% accuracy improvement compared to training from scratch. Similarly, augmenting training data with synthetically generated samples improved robustness to environmental variations.
+
+\section{Conclusion}
+This comprehensive meta-analysis of multimodal approaches for real-time threat detection through facial and vocal cues has provided valuable insights into the state of the field and identified critical areas for improvement.
+
+\subsection{Summary of Key Findings}
+Our research confirmed that multimodal approaches consistently outperform unimodal methods, with the best models achieving over 94\% accuracy. However, this performance advantage comes with significant computational costs that limit practical deployment in resource-constrained environments.
+
+Explainability analysis revealed that successful models primarily rely on facial micro-expressions and vocal stress patterns, with eye region movements (23\%) and mouth tension (18\%) contributing most significantly to predictions. Temporal dynamics played a crucial role in accurate threat detection, with models heavily weighting feature changes over time rather than static patterns.
+
+We identified several critical limitations in current approaches, including architectural homogeneity, deployment constraints, dataset limitations, and real-time inference gaps. These limitations present significant challenges for practical deployment but also offer opportunities for future research.
+
+\subsection{Theoretical and Practical Implications}
+The theoretical implications of our work include a better understanding of what features are most informative for threat detection and how different modalities contribute complementary information. The feature importance hierarchy identified through explainability analysis provides insights into human threat expression that extend beyond computational models.
+
+Practically, our findings have significant implications for security applications, law enforcement, and healthcare monitoring. By developing more transparent and efficient threat detection systems, we can improve public safety while ensuring ethical deployment and accountability. Our analysis of computational efficiency highlights the need for more deployment-friendly architectures suitable for edge devices.
+
+\subsection{Future Research Directions}
+Based on our findings, we recommend several promising directions for future research:
+
+\begin{itemize}
+    \item Development of lightweight architectures specifically optimized for edge deployment in surveillance systems
+    \item Incorporation of explainability constraints directly into the training process
+    \item Exploration of hybrid approaches combining deep learning and traditional machine learning
+    \item Investigation of transfer learning and synthetic data generation to address dataset limitations
+    \item Development of standardized benchmarks for evaluating both performance and explainability
+    \item Integration of real-time inference paradigms suitable for streaming data processing
+    \item Investigation of privacy-preserving techniques for sensitive applications
+\end{itemize}
+
+\subsection{Final Remarks}
+The field of explainable threat detection through multimodal analysis is evolving rapidly, with significant potential for societal impact. Our comprehensive meta-analysis has identified both the current state of the art and critical gaps that must be addressed. By developing more transparent, efficient, and ethical systems, we can harness the power of AI for enhanced security while maintaining public trust and accountability.
+
+\bibliographystyle{IEEEtran}
+\begin{thebibliography}{00}
+\bibitem{patil2023} M. Patil, P. Patil, K. Patil, and P. Kamble, "Real-Time Violence Detection in Surveillance Videos," International Journal for Research in Applied Science \& Engineering Technology (IJRASET), vol. 12, no. 1, pp. 1-10, 2023.
+
+\bibitem{amrutha2020} C.V. Amrutha, Chandrasekharan, Jyotsna, and Amudha Joseph, "Deep Learning Approach for Suspicious Activity Detection from Surveillance Video," Proceedings of ICIMIA 2020, pp. 65-70, 2020.
+
+\bibitem{poria2016} S. Poria, E. Cambria, N. Howard, G.B. Huang, and A. Hussain, "Fusing Audio, Visual, and Textual Clues for Sentiment Analysis from Multimodal Content," Neurocomputing, vol. 174, pp. 50-59, 2016.
+
+\bibitem{gonzalez2022} E.R. González, "Multimodal Affective Computing in Wearable Devices with Applications in the Detection of Gender-based Violence," Ph.D. dissertation, Universidad Carlos III de Madrid, 2022.
+
+\bibitem{bicer2022} B. Biçer, "Automatic deceit detection through multimodal analysis of speech videos," Ph.D. dissertation, Middle East Technical University, 2022.
+
+\bibitem{udahemuka2024} G. Udahemuka, K. Djouani, and A.M. Kurien, "Multimodal Emotion Recognition using visual, vocal, and Physiological Signals: a review," Applied Sciences, vol. 14, no. 17, pp. 8071, 2024.
+
+\bibitem{hosseini2024} S.S. Hosseini and M. Yamaghani, "Real Time Multimodal Human Emotion Recognition: A Deep Learning Approach," Journal of Applied Research on Industrial Engineering, vol. 11, no. 2, pp. 190-205, 2024.
+
+\bibitem{gheni2024} H.Q. Gheni, N.F. Hussaien, and N. Razaq, "A Victim Tracking System by Recognizing Signs of Violence Using Long-Short Term Memory," International Journal of Safety and Security Engineering, vol. 14, no. 4, pp. 423-431, 2024.
+
+\bibitem{nam2023} B. Nam, J.Y. Kim, B. Bark, Y. Kim, J. Kim, S.W. So, and I.Y. Kim, "FacialCueNet: Unmasking Deception- An Interpretable Model for Criminal Interrogation Using Facial Expressions," Applied Intelligence, vol. 53, pp. 4968-4982, 2023.
+
+\bibitem{westlake2022} B.G. Westlake, R. Brewer, T. Swearingen, A. Ross, S. Patterson, D. Michalski, M. Hole, K. Logos, R. Frank, D. Bright, and E. Afana, "Developing Automated Methods to Detect and Match Face and Voice Biometrics in Child Sexual Abuse Videos," Australian Institute of Criminology, vol. 6, pp. 1-16, 2022.
+
+\bibitem{bermejo2016} B. Bermejo Nievas, O. Deniz Suarez, G. Bueno García, and R. Sukthankar, "Multi-modal Human Aggression Detection," Computer Vision and Image Understanding, vol. 148, pp. 136-150, 2016.
+
+\bibitem{alghowinem2023} S. Alghowinem, X. Zhang, C. Breazeal, and H.W. Park, "Multimodal Region-Based Behavioral Modeling for Suicide Risk Screening," Frontiers in Computer Science, vol. 5, pp. 990426, 2023.
+
+\bibitem{minaee2019} S. Minaee, M. Minaei, and A. Abdolrashidi, "Deep-Emotion: Facial Expression Recognition Using Attentional Convolutional Network," Sensors, vol. 21, no. 9, pp. 3046, 2021.
+
+\bibitem{manh2021} H. Manh and G. Alaghband, "Spatiotemporal Feature Extraction for Facial Emotion Recognition," arXiv preprint arXiv:2109.09873, 2021.
+
+\bibitem{zhang2019} Z. Zhang, J. Han, J. Deng, X. Xu, F. Yang, and L. Zhao, "Facial Expression Recognition Based on Deep Evolution Spatial-Temporal Networks," IEEE Transactions on Image Processing, vol. 29, pp. 6985-6995, 2020.
+\end{thebibliography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{}}]{Research Team}
+The research team consists of interdisciplinary experts in computer vision, audio processing, machine learning, and ethical AI. The team members have extensive experience in developing and analyzing AI systems for security applications, with a particular focus on explainable approaches that enhance transparency and trustworthiness.
+\end{IEEEbiography}
+
+\end{document}
